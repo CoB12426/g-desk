@@ -7,7 +7,7 @@
 
 お使いのOSに合ったインストーラーをダウンロードして、アプリをインストールしてください。
 
-1.  **[最新のリリースバージョン](https://github.com/あなたのGitHubユーザー名/meiru/releases/latest)** にアクセスします。
+1.  **[最新のリリースバージョン](https://github.com/CoB12426/meiru/releases/latest)** にアクセスします。
 2.  `Assets` の中から、お使いのOSとCPUに合ったファイルをダウンロードします。
     * **Windows (Intel/AMD)**: `meiru-gmail-client-x.x.x-x64-setup.exe`<-coming soon...
     * **Windows (ARM)**: `meiru-gmail-client-x.x.x-arm64-setup.exe`
