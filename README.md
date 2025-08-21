@@ -9,4 +9,5 @@
 2.  `Assets` の中から、`g-desk-x.x.x.Setup.exe`をダウンロードします。
 4.  ダウンロードしたファイルを実行してインストールします。
 
-<img width="1484" height="992" alt="sample" src="https://github.com/user-attachments/assets/e355af26-086c-4f20-8bcf-4b4815cd8fbe" />
+<img width="3702" height="2475" alt="sample" src="https://github.com/user-attachments/assets/b5221f46-b0fe-43e0-a872-10736958b25b" />
+
