@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Meiru</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="tab-bar">
+        <div id="tabs"></div>
+        <button id="add-btn" title="アカウントを追加">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="modal" class="hidden">
+        <div id="modal-overlay"></div>
+        <div id="modal-content">
+            <h2>アカウント名を入力</h2>
+            <input type="text" id="account-name-input" placeholder="例: 個人用">
+            <div id="modal-actions">
+                <button id="ok-btn">OK</button>
+                <button id="cancel-btn">キャンセル</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="./renderer.js"></script>
+</body>
+</html>
