@@ -1,5 +1,5 @@
 // 1. 最初にelectronからapp等を読み込む
-const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, shell } = require('electron');
 
 // 2. 次にインストーラーの処理を行う (修正済み)
 if (require('electron-squirrel-startup')) {
@@ -92,6 +92,16 @@ function restoreAccounts() {
             partition: `persist:${acc.id}`,
             nativeWindowOpen: true,
           }
+        });
+        view.webContents.setWindowOpenHandler(({ url }) => {
+          if (/^https?:\/\//.test(url)) {
+            shell.openExternal(url);
+          }
+          return { action: 'deny' };
+        });
+        view.webContents.on('new-window', (event, url) => {
+          event.preventDefault();
+          if (/^https?:\/\//.test(url)) shell.openExternal(url);
         });
         view.accountName = acc.name; // カスタム名をviewに復元
         views[acc.id] = view;
