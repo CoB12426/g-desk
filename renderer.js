@@ -2,6 +2,8 @@
 const tabsContainer = document.getElementById('tabs');
 const addBtn = document.getElementById('add-btn');
 const tabBar = document.getElementById('tab-bar');
+const serviceSelect = document.getElementById('service-select');
+const themeBtn = document.getElementById('theme-btn');
 
 // --- モーダル関連の要素を取得 ---
 const modal = document.getElementById('modal');
@@ -22,6 +24,52 @@ function reportUiMetrics() {
 
 reportUiMetrics();
 
+// テーマ切替（system -> dark -> light -> system）
+const THEME_KEY = 'gdesk.theme';
+
+function applyTheme(theme) {
+    const root = document.documentElement;
+    if (!theme || theme === 'system') {
+        root.removeAttribute('data-theme');
+        return;
+    }
+    if (theme === 'dark' || theme === 'light') {
+        root.setAttribute('data-theme', theme);
+    }
+}
+
+function getSavedTheme() {
+    try {
+        return localStorage.getItem(THEME_KEY) || 'system';
+    } catch {
+        return 'system';
+    }
+}
+
+function saveTheme(theme) {
+    try {
+        localStorage.setItem(THEME_KEY, theme);
+    } catch {
+        // ignore
+    }
+}
+
+function cycleTheme() {
+    const current = getSavedTheme();
+    const next = current === 'system' ? 'dark' : current === 'dark' ? 'light' : 'system';
+    saveTheme(next);
+    applyTheme(next);
+}
+
+applyTheme(getSavedTheme());
+
+if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+        cycleTheme();
+        reportUiMetrics();
+    });
+}
+
 if (tabBar && 'ResizeObserver' in window) {
     const ro = new ResizeObserver(() => reportUiMetrics());
     ro.observe(tabBar);
@@ -30,6 +78,14 @@ if (tabBar && 'ResizeObserver' in window) {
 window.addEventListener('resize', () => {
     reportUiMetrics();
 });
+
+// サービス切替（アクティブなアカウントに対して適用）
+if (serviceSelect) {
+    serviceSelect.addEventListener('change', () => {
+        const key = serviceSelect.value;
+        window.api.switchService(key);
+    });
+}
 
 // 「+」ボタンがクリックされたらモーダルを表示
 addBtn.addEventListener('click', () => {
@@ -98,4 +154,13 @@ window.api.onSetActiveTab((id) => {
         tabToActivate.click();
     }
     reportUiMetrics();
+});
+
+// main側が「今アクティブなアカウントのサービス」を通知してくる
+window.api.onActiveService(({ serviceKey }) => {
+    if (!serviceSelect) return;
+    if (!serviceKey) return;
+    if (serviceSelect.value !== serviceKey) {
+        serviceSelect.value = serviceKey;
+    }
 });

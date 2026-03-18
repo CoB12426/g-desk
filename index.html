@@ -9,6 +9,26 @@
 <body>
     <div id="tab-bar">
         <div id="tabs"></div>
+
+        <div id="service-switcher" title="サービスを切り替え">
+            <select id="service-select" aria-label="Googleサービス">
+                <option value="gmail">Gmail</option>
+                <option value="calendar">Calendar</option>
+                <option value="drive">Drive</option>
+                <option value="keep">Keep</option>
+                <option value="contacts">Contacts</option>
+                <option value="chat">Chat</option>
+                <option value="meet">Meet</option>
+                <option value="photos">Photos</option>
+            </select>
+        </div>
+
+        <button id="theme-btn" title="テーマ切替" aria-label="テーマ切替">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path fill="currentColor" d="M12 18a6 6 0 0 0 0-12 6 6 0 0 0 0 12Zm0 2a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm0-18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1Zm0 18a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1ZM2 11a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Zm18 0a1 1 0 0 1 1-1h1a1 1 0 1 1 0 2h-1a1 1 0 0 1-1-1ZM4.22 4.22a1 1 0 0 1 1.41 0l.7.7a1 1 0 1 1-1.41 1.42l-.7-.71a1 1 0 0 1 0-1.41Zm12.45 12.45a1 1 0 0 1 1.41 0l.7.7a1 1 0 1 1-1.41 1.42l-.7-.71a1 1 0 0 1 0-1.41ZM19.78 4.22a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.41-1.42l.7-.7a1 1 0 0 1 1.41 0ZM7.04 17.75a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.41-1.42l.7-.7a1 1 0 0 1 1.41 0Z"/>
+            </svg>
+        </button>
+
         <button id="add-btn" title="アカウントを追加">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                 <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>

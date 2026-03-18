@@ -137,6 +137,58 @@ body {
     -webkit-app-region: no-drag;
 }
 
+/* ========== サービス切替 ========== */
+#service-switcher {
+    -webkit-app-region: no-drag;
+    display: flex;
+    align-items: center;
+}
+
+#service-select {
+    -webkit-app-region: no-drag;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 9px 34px 9px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-solid);
+    color: var(--text);
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    box-shadow: var(--shadow-sm);
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: transform 160ms var(--ease), border-color 160ms var(--ease);
+}
+
+#service-select:hover {
+    transform: translateY(-1px);
+}
+
+#service-select:focus {
+    border-color: rgba(26, 115, 232, 0.55);
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.16), var(--shadow-sm);
+}
+
+/* ▼ をCSSだけで描画 */
+#service-switcher {
+    position: relative;
+}
+
+#service-switcher::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--muted);
+    pointer-events: none;
+}
+
 #add-btn:hover {
     background: rgba(26, 115, 232, 0.18);
     border-color: rgba(26, 115, 232, 0.28);
