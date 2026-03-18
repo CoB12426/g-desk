@@ -1,3 +1,57 @@
-node_modules
-out
-コマンド.txt
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variables file (contains secrets)
+.env
+.env.test
+.env.production
+.env.local
+
+# Build outputs
+out/
+dist/
+build/
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+*.dmg
+*.exe
+*.AppImage
+
+# OS metadata
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDEs and Editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
