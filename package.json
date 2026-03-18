@@ -1,8 +1,8 @@
 {
   "name": "g-desk",
   "productName": "g-desk",
-  "version": "1.0.1",
-  "description": "A simple and clean desktop client for Gmail.",
+  "version": "1.1.0",
+  "description": "A simple and clean desktop client for Google Services.",
   "main": "main.js",
   "config": {
     "forge": {
