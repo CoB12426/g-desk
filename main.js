@@ -59,6 +59,11 @@ function createWindow() {
     alwaysOnTop: true,
     icon: path.join(__dirname, 'icon.ico'),
     show: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    }
   });
   splashWindow.loadFile('splash.html');
 
@@ -72,8 +77,17 @@ function createWindow() {
     backgroundColor: '#0b0f19',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
     },
   });
+  
+  // メインウィンドウでの意図しないナビゲーションを防ぐ
+  mainWindow.webContents.on('will-navigate', (event) => {
+    event.preventDefault();
+  });
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   mainWindow.loadFile('index.html');
 
   mainWindow.on('resize', layoutActiveView);
@@ -165,6 +179,8 @@ function restoreAccounts() {
           webPreferences: {
             partition: `persist:${acc.id}`,
             nativeWindowOpen: true,
+            contextIsolation: true,
+            sandbox: true,
           }
         });
 
@@ -215,7 +231,22 @@ ipcMain.on('add-account', (event, accountName) => {
     webPreferences: {
       partition: `persist:${viewId}`,
       nativeWindowOpen: true,
+      contextIsolation: true,
+      sandbox: true,
     }
+  });
+
+  view.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//.test(url)) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
+
+  // For compatibility with older Electron versions if needed
+  view.webContents.on('new-window', (event, url) => {
+    event.preventDefault();
+    if (/^https?:\/\//.test(url)) shell.openExternal(url);
   });
   
   // ★重要：ここでカスタム名をviewオブジェクトに保存します (修正済み)
