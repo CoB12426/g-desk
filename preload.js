@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   switchAccount: (viewId) => ipcRenderer.send('switch-account', viewId),
   hideView: () => ipcRenderer.send('hide-view'),
   showView: () => ipcRenderer.send('show-view'),
+  setUiTopInset: (topInsetPx) => ipcRenderer.send('ui-top-inset', topInsetPx),
 
   // Main -> Renderer
   onAccountAdded: (callback) => ipcRenderer.on('account-added', (_event, value) => callback(value)),

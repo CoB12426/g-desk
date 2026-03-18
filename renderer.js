@@ -1,6 +1,7 @@
 // --- 操作するHTML要素を取得 ---
 const tabsContainer = document.getElementById('tabs');
 const addBtn = document.getElementById('add-btn');
+const tabBar = document.getElementById('tab-bar');
 
 // --- モーダル関連の要素を取得 ---
 const modal = document.getElementById('modal');
@@ -11,11 +12,31 @@ const cancelBtn = document.getElementById('cancel-btn');
 // 起動時にmainプロセスへ準備完了を通知
 window.api.rendererReady();
 
+// BrowserViewの表示領域をタブバーの実寸に追従させる
+function reportUiMetrics() {
+    if (!tabBar) return;
+    const rect = tabBar.getBoundingClientRect();
+    const height = Math.ceil(rect.height);
+    window.api.setUiTopInset(height);
+}
+
+reportUiMetrics();
+
+if (tabBar && 'ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => reportUiMetrics());
+    ro.observe(tabBar);
+}
+
+window.addEventListener('resize', () => {
+    reportUiMetrics();
+});
+
 // 「+」ボタンがクリックされたらモーダルを表示
 addBtn.addEventListener('click', () => {
     window.api.hideView();
     modal.classList.remove('hidden');
     accountNameInput.focus();
+    reportUiMetrics();
 });
 
 // モーダルの「OK」ボタン
@@ -28,6 +49,7 @@ okBtn.addEventListener('click', () => {
     } else {
         window.api.showView();
     }
+    reportUiMetrics();
 });
 
 // モーダルの「キャンセル」ボタン
@@ -35,6 +57,7 @@ cancelBtn.addEventListener('click', () => {
     modal.classList.add('hidden');
     accountNameInput.value = '';
     window.api.showView();
+    reportUiMetrics();
 });
 
 // main.jsからアカウント追加・復元の通知を受け取る
@@ -54,6 +77,7 @@ window.api.onAccountAdded(({ id, name }) => {
         window.api.switchAccount(id);
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
+        reportUiMetrics();
     });
 });
 
@@ -64,6 +88,7 @@ window.api.onAccountAddedComplete(({ id }) => {
         newTab.click();
     }
     window.api.showView();
+    reportUiMetrics();
 });
 
 // 復元時にアクティブタブを設定する
@@ -72,4 +97,5 @@ window.api.onSetActiveTab((id) => {
     if (tabToActivate) {
         tabToActivate.click();
     }
+    reportUiMetrics();
 });

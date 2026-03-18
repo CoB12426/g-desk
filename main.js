@@ -9,6 +9,16 @@ if (require('electron-squirrel-startup')) {
 const path = require('path');
 const fs = require('fs');
 
+// Linuxでキーリング未設定の場合、Cookie復号に失敗してログインが保持されないことがあります。
+// basic を指定すると永続化が安定します（セキュリティ要件に応じて見直し可）。
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('password-store', 'basic');
+}
+
+// ログイン状態(セッション/Cookie)を安定して保持するため、userDataの保存先を明示的に固定します。
+// (開発時は既定で "Electron" 配下になることがあり、パッケージ版と保存先が変わってログアウト扱いになるのを防ぐ)
+app.setPath('userData', path.join(app.getPath('appData'), 'g-desk'));
+
 // アプリのデータを保存するフォルダとファイルパスを定義
 const userDataPath = app.getPath('userData');
 const accountsFile = path.join(userDataPath, 'accounts.json');
@@ -16,6 +26,9 @@ const accountsFile = path.join(userDataPath, 'accounts.json');
 let mainWindow;
 const views = {};
 let activeViewId = null;
+
+let uiTopInset = 50; // タブバー高さ。レンダラから通知される(デフォルトは従来値)
+let hasRestoredAccounts = false;
 
 let splashWindow;
 function createWindow() {
@@ -39,33 +52,62 @@ function createWindow() {
     icon: path.join(__dirname, 'icon.ico'),
     autoHideMenuBar: true,
     show: false,
+    backgroundColor: '#0b0f19',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
   mainWindow.loadFile('index.html');
 
-  mainWindow.on('resize', () => {
-    if (activeViewId && views[activeViewId]) {
-      const [width, height] = mainWindow.getContentSize();
-      views[activeViewId].setBounds({ x: 0, y: 50, width: width, height: height - 50 });
-    }
-  });
+  mainWindow.on('resize', layoutActiveView);
+  mainWindow.on('maximize', layoutActiveView);
+  mainWindow.on('unmaximize', layoutActiveView);
 
   // 3. メインウィンドウの準備ができたらスプラッシュを閉じて表示
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
       splashWindow.close();
       mainWindow.show();
-      restoreAccounts();
     }, 1200); // 1.2秒だけ表示
   });
 }
 
 // レンダラープロセスの準備完了を待ってからアカウントを復元する
 ipcMain.on('renderer-ready', () => {
-  restoreAccounts();
+  if (!hasRestoredAccounts) {
+    hasRestoredAccounts = true;
+    restoreAccounts();
+  } else {
+    // 再読み込みなどでrenderer-readyが再度来ても、タブUIを再同期できるように通知だけ流す
+    sendAccountsToRenderer();
+  }
 });
+
+ipcMain.on('ui-top-inset', (_event, topInset) => {
+  const parsed = Number(topInset);
+  if (!Number.isFinite(parsed)) return;
+  uiTopInset = Math.max(0, Math.min(200, Math.floor(parsed)));
+  layoutActiveView();
+});
+
+function layoutActiveView() {
+  if (!mainWindow) return;
+  if (!activeViewId || !views[activeViewId]) return;
+
+  const [width, height] = mainWindow.getContentSize();
+  const inset = Math.max(0, Math.min(height, uiTopInset));
+  views[activeViewId].setBounds({ x: 0, y: inset, width, height: Math.max(0, height - inset) });
+}
+
+function sendAccountsToRenderer() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  Object.entries(views).forEach(([id, view]) => {
+    mainWindow.webContents.send('account-added', { id, name: view.accountName || id });
+  });
+  if (activeViewId) {
+    mainWindow.webContents.send('set-active-tab', activeViewId);
+  }
+}
 
 function saveAccounts() {
   const accountsToSave = Object.entries(views).map(([id, view]) => ({
@@ -106,10 +148,10 @@ function restoreAccounts() {
         view.accountName = acc.name; // カスタム名をviewに復元
         views[acc.id] = view;
         view.webContents.loadURL('https://mail.google.com');
-
-        // UIにタブを追加するよう通知
-        mainWindow.webContents.send('account-added', { id: acc.id, name: acc.name });
       }
+
+      // UIにタブを追加するよう通知（レンダラ準備前に送っても、renderer-readyで再同期する）
+      mainWindow.webContents.send('account-added', { id: acc.id, name: acc.name });
     });
 
     // 最後にアクティブだった（または最初に見つかった）アカウントを表示
@@ -155,6 +197,9 @@ ipcMain.on('add-account', (event, accountName) => {
 
   switchToView(viewId);
   mainWindow.webContents.send('set-active-tab', viewId);
+
+  // レンダラ側のUX(モーダル閉鎖・表示復帰など)を完了できるよう通知
+  event.reply('account-added-complete', { id: viewId });
 });
 
 ipcMain.on('switch-account', (event, viewId) => {
@@ -171,11 +216,16 @@ function switchToView(viewId) {
 
   const newView = views[viewId];
   mainWindow.addBrowserView(newView);
-  
-  const [width, height] = mainWindow.getContentSize();
-  newView.setBounds({ x: 0, y: 50, width, height: height - 50 });
+  layoutView(newView);
 
   activeViewId = viewId;
+}
+
+function layoutView(view) {
+  if (!mainWindow) return;
+  const [width, height] = mainWindow.getContentSize();
+  const inset = Math.max(0, Math.min(height, uiTopInset));
+  view.setBounds({ x: 0, y: inset, width, height: Math.max(0, height - inset) });
 }
 
 ipcMain.on('hide-view', () => {
@@ -187,7 +237,6 @@ ipcMain.on('hide-view', () => {
 ipcMain.on('show-view', () => {
   if (activeViewId && views[activeViewId]) {
     mainWindow.addBrowserView(views[activeViewId]);
-    const [width, height] = mainWindow.getContentSize();
-    views[activeViewId].setBounds({ x: 0, y: 50, width: width, height: height - 50 });
+    layoutActiveView();
   }
 });
