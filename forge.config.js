@@ -4,7 +4,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    icon: 'icon',
+    icon: './icons/g-desk-new-icon-flat',
   },
   rebuildConfig: {},
   makers: [
